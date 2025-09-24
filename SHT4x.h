@@ -98,14 +98,7 @@ protected:
 
 private:
   uint32_t getDelay(uint8_t measurementType);
-  bool validateMeasCmd(uint8_t cmd)
-  {
-    return (cmd == SHT4x_MEASUREMENT_SLOW || cmd == SHT4x_MEASUREMENT_MEDIUM ||
-            cmd == SHT4x_MEASUREMENT_FAST || cmd == SHT4x_MEASUREMENT_LONG_HIGH_HEAT ||
-            cmd == SHT4x_MEASUREMENT_SHORT_HIGH_HEAT || cmd == SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT ||
-            cmd == SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT || cmd == SHT4x_MEASUREMENT_LONG_LOW_HEAT ||
-            cmd == SHT4x_MEASUREMENT_SHORT_LOW_HEAT);
-  }
+  bool validateMeasCmd(uint8_t cmd);
   uint8_t crc8(const uint8_t *data, uint8_t len);
   virtual bool writeCmd(uint8_t cmd);
   virtual bool readBytes(uint8_t n, uint8_t *val);

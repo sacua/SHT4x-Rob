@@ -250,6 +250,24 @@ uint32_t SHT4x::getDelay(uint8_t measurementType)
   return 0;   //  Never supposed to happen
 }
 
+bool SHT4x::validateMeasCmd(uint8_t cmd)
+{
+  switch(cmd)
+  {
+    case SHT4x_MEASUREMENT_SLOW:
+    case SHT4x_MEASUREMENT_MEDIUM:
+    case SHT4x_MEASUREMENT_FAST:
+    case SHT4x_MEASUREMENT_LONG_HIGH_HEAT:
+    case SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT:
+    case SHT4x_MEASUREMENT_LONG_LOW_HEAT:
+    case SHT4x_MEASUREMENT_SHORT_HIGH_HEAT:
+    case SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT:
+    case SHT4x_MEASUREMENT_SHORT_LOW_HEAT:
+      return true;
+  }
+  return false;
+}
+
 
 uint8_t SHT4x::crc8(const uint8_t *data, uint8_t len)
 {

@@ -245,7 +245,7 @@ errorCheck == false, => no CRC check, faster.
 
 #### Could
 
-- move code from .h to .cpp
+- ~~move code from .h to .cpp~~
 - extend unit-tests if possible.
 
 
