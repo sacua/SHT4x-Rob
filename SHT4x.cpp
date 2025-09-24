@@ -2,7 +2,7 @@
 //    FILE: SHT4x.cpp
 //  AUTHOR: Samuel Cuerrier Auclair
 //  AUTHOR: Rob Tillaart
-// VERSION: 0.0.1
+// VERSION: 0.0.2
 //    DATE: 2025-08-11
 // PURPOSE: Arduino library for the SHT4x temperature and humidity sensor. High precision sensor with I2C interface.
 //          This is a fork of the SHT31 library by Rob Tillaart, modified to work with the SHT4x series.
@@ -14,9 +14,9 @@
 
 
 //  SUPPORTED COMMANDS
-static constexpr uint16_t SHT4x_SOFT_RESET        = 0x94;
+static constexpr uint8_t SHT4x_SOFT_RESET        = 0x94;
 
-static constexpr uint16_t SHT4x_GET_SERIAL_NUMBER = 0x89;
+static constexpr uint8_t SHT4x_GET_SERIAL_NUMBER = 0x89;
 
 
 SHT4x::SHT4x(uint8_t address, TwoWire *wire)
@@ -62,9 +62,16 @@ bool SHT4x::read(uint8_t measurementType, bool errorCheck)
   {
     return false;
   }
-  delay(getDelay()); 
+  delay(getDelay());
   return readData(errorCheck);
 }
+
+
+uint32_t SHT4x::lastRead()
+{
+  return _lastRead;
+}
+
 
 bool SHT4x::reset()
 {
@@ -76,6 +83,40 @@ bool SHT4x::reset()
   delay(1);   //  table 5 datasheet
   return true;
 }
+
+
+float SHT4x::getHumidity()
+{
+  float hum = _rawHumidity * (125.0 / 65535.0) - 6.0;
+  if (hum > 100.0)    hum = 100.0;
+  else if (hum < 0.0) hum = 0.0;
+  return hum;
+}
+
+
+float SHT4x::getTemperature()
+{
+  return _rawTemperature * (175.0 / 65535.0) - 45.0;
+}
+
+
+float SHT4x::getFahrenheit()
+{
+  return _rawTemperature * (315.0 / 65535.0) - 49.0;
+}
+
+
+uint16_t SHT4x::getRawHumidity()
+{
+  return _rawHumidity;
+}
+
+
+uint16_t SHT4x::getRawTemperature()
+{
+  return _rawTemperature;
+}
+
 
 /////////////////////////////////////////////////////////////////
 //
@@ -109,6 +150,7 @@ bool SHT4x::readData(bool errorCheck)
   uint8_t buffer[6];
   if (readBytes(6, (uint8_t*) &buffer[0]) == false)
   {
+    _error = SHT4x_ERR_READBYTES;
     return false;
   }
 
@@ -206,6 +248,7 @@ uint32_t SHT4x::getDelay()
   }
   return 0;   //  Happen if dataReady get called before requestData
 }
+
 
 uint8_t SHT4x::crc8(const uint8_t *data, uint8_t len)
 {
