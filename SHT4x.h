@@ -89,7 +89,7 @@ public:
 
 protected:
   uint8_t  _address;
-  uint8_t  _lastMeasurementType; //  SHT4x_MEASUREMENT_SLOW, SHT4x_MEASUREMENT_MEDIUM, SHT4x_MEASUREMENT_FAST
+  uint32_t _delay;
   uint32_t _lastRead;
   uint32_t _lastRequest;   //  for async interface
   uint16_t _rawHumidity;
@@ -97,7 +97,7 @@ protected:
   uint8_t  _error;
 
 private:
-  uint32_t getDelay();
+  uint32_t getDelay(uint8_t measurementType);
   bool validateMeasCmd(uint8_t cmd)
   {
     return (cmd == SHT4x_MEASUREMENT_SLOW || cmd == SHT4x_MEASUREMENT_MEDIUM ||

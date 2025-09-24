@@ -27,6 +27,7 @@ SHT4x::SHT4x(uint8_t address, TwoWire *wire)
   _rawTemperature = 0;
   _rawHumidity    = 0;
   _error          = SHT4x_OK;
+  _delay          = 0;
 }
 
 
@@ -62,7 +63,7 @@ bool SHT4x::read(uint8_t measurementType, bool errorCheck)
   {
     return false;
   }
-  delay(getDelay());
+  delay(_delay);
   return readData(errorCheck);
 }
 
@@ -134,14 +135,14 @@ bool SHT4x::requestData(uint8_t measurementType)
     return false;
   }
   _lastRequest = millis();
-  _lastMeasurementType = measurementType;
+  _delay = getDelay(measurementType);
   return true;
 }
 
 
 bool SHT4x::dataReady()
 {
-  return ((millis() - _lastRequest) > getDelay());
+  return ((millis() - _lastRequest) > _delay);
 }
 
 
@@ -226,10 +227,10 @@ bool SHT4x::getSerialNumber(uint32_t &serial, bool errorCheck) {
 //
 //  PROTECTED
 //
-uint32_t SHT4x::getDelay()
+uint32_t SHT4x::getDelay(uint8_t measurementType)
 {
   //  table 5 datasheet
-  switch(_lastMeasurementType)
+  switch(measurementType)
   {
     case SHT4x_MEASUREMENT_SLOW:
       return 9;
@@ -246,7 +247,7 @@ uint32_t SHT4x::getDelay()
     case SHT4x_MEASUREMENT_SHORT_LOW_HEAT:
       return 110;
   }
-  return 0;   //  Happen if dataReady get called before requestData
+  return 0;   //  Never supposed to happen
 }
 
 
