@@ -92,10 +92,10 @@ public:
 
 protected:
   uint8_t  _address;
-  uint32_t _delay;
+  uint16_t _delay;
   uint32_t _lastRead;
   uint32_t _lastRequest;      // for async interface
-  uint32_t _heatInterval;     // for overheating protection
+  uint16_t _heatInterval;     // for overheating protection
   uint32_t _lastHeatRequest;  // for overheating protection
   uint16_t _rawHumidity;
   uint16_t _rawTemperature;

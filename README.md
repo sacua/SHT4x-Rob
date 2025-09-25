@@ -152,17 +152,17 @@ If needed use the **Async interface** as this allows to do other tasks
 while waiting for the measurement. See below.
 
 
-| measurement type                    |  duration  |  heater  |  power   | heat protection interval | notes  |
-|:------------------------------------|:----------:|:--------:|:--------:|:------------------------:|:------:|
-| SHT4x_MEASUREMENT_SLOW              |     9 ms   |     N    |     -    |           -              | default
-| SHT4x_MEASUREMENT_MEDIUM            |     5 ms   |     N    |     -    |           -              |
-| SHT4x_MEASUREMENT_FAST              |     2 ms   |     N    |     -    |           -              |
-| SHT4x_MEASUREMENT_LONG_HIGH_HEAT    |  1100 ms   |     Y    |  200 mW  |          10 s            |
-| SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT  |  1100 ms   |     Y    |  110 mW  |         5.5 s            |
-| SHT4x_MEASUREMENT_LONG_LOW_HEAT     |  1100 ms   |     Y    |   20 mW  |           0 s            |
-| SHT4x_MEASUREMENT_SHORT_HIGH_HEAT   |   110 ms   |     Y    |  200 mW  |           1 s            |
-| SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT |   110 ms   |     Y    |  110 mW  |        0.55 s            |
-| SHT4x_MEASUREMENT_SHORT_LOW_HEAT    |   110 ms   |     Y    |   20 mW  |           0 s            |
+| measurement type                    |  duration  | heat protection interval |  power   | notes  |
+|:------------------------------------|:----------:|:------------------------:|:--------:|:------:|
+| SHT4x_MEASUREMENT_SLOW              |     9 ms   |        No heater         |     -    | default
+| SHT4x_MEASUREMENT_MEDIUM            |     5 ms   |        No heater         |     -    |
+| SHT4x_MEASUREMENT_FAST              |     2 ms   |        No heater         |     -    |
+| SHT4x_MEASUREMENT_LONG_HIGH_HEAT    |  1100 ms   |          10 s            |  200 mW  |
+| SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT  |  1100 ms   |         5.5 s            |  110 mW  |
+| SHT4x_MEASUREMENT_LONG_LOW_HEAT     |  1100 ms   |           0 s            |   20 mW  |
+| SHT4x_MEASUREMENT_SHORT_HIGH_HEAT   |   110 ms   |           1 s            |  200 mW  |
+| SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT |   110 ms   |        0.55 s            |  110 mW  |
+| SHT4x_MEASUREMENT_SHORT_LOW_HEAT    |   110 ms   |           0 s            |   20 mW  |
 
 
 Meta information about the sensor.
