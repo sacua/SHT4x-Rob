@@ -262,7 +262,7 @@ void SHT4x::setHeatProtection(bool activateHeatProtection)
 //
 //  PROTECTED
 //
-uint32_t SHT4x::getDelay(uint8_t measurementType)
+uint16_t SHT4x::getDelay(uint8_t measurementType)
 {
   //  table 5 datasheet
   switch(measurementType)

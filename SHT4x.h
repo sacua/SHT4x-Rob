@@ -103,7 +103,7 @@ protected:
   bool     _heatProtection;
 
 private:
-  uint32_t getDelay(uint8_t measurementType);
+  uint16_t getDelay(uint8_t measurementType);
   bool validateMeasCmd(uint8_t cmd);
   bool isHeatCmd(uint8_t cmd);                    // for overheating protection
   void setHeatInterval(uint8_t measurementType);  // for overheating protection
