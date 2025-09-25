@@ -34,17 +34,17 @@ limited to 20 mW.
 
 The library is not tested and verified 100% so feedback is welcome.
 
-Datasheet used: Version 7.1 � March 2025.
+Datasheet used: Version 7.1 – March 2025.
 
 
 **Accuracy table**
 
 |  Sensor  |  Temperature  |  Humidity  |  Verified  |  Notes  |
 |:--------:|:-------------:|:----------:|:----------:|:-------:|
-|   SHT40  |     ~0.2 �C   |     1.8%   |     Y     |
-|   SHT41  |     ~0.2 �C   |     1.8%   |     N     |
-|   SHT43  |     ~0.2 �C   |     1.8%   |     N     |  ISO/IEC 17025 3-point calibration 
-|   SHT45  |     ~0.1 �C   |     1.0%   |     N     |
+|   SHT40  |     ~0.2 °C   |     1.8%   |     Y     |
+|   SHT41  |     ~0.2 °C   |     1.8%   |     N     |
+|   SHT43  |     ~0.2 °C   |     1.8%   |     N     |  ISO/IEC 17025 3-point calibration 
+|   SHT45  |     ~0.1 °C   |     1.0%   |     N     |
 
 
 The datasheet states 3 different accuracies for the SHT43.
@@ -174,8 +174,8 @@ Note that reset() blocks for 1 ms so sensor can reinitialize.
 The following functions will return the same value until a new **read()** call (or async) is made.
 
 - **float getHumidity()** computes the relative humidity in % based on the latest raw reading, and returns it.
-- **float getTemperature()** computes the temperature in �C based on the latest raw reading, and returns it.
-- **float getFahrenheit()** computes the temperature in �F based on the latest raw reading, and returns it.
+- **float getTemperature()** computes the temperature in °C based on the latest raw reading, and returns it.
+- **float getFahrenheit()** computes the temperature in °F based on the latest raw reading, and returns it.
 
 
 The **getRawHumidity()** and **getRawTemperature()** can be used to minimize storage or communication 
