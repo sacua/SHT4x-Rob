@@ -86,19 +86,27 @@ public:
   //  fast == true, => skips CRC check
   bool getSerialNumber(uint32_t &serial, bool errorCheck = true);
 
+  // Heat protection
+  bool heatingReady();
+  void setHeatProtection(bool activateHeatProtection); 
 
 protected:
   uint8_t  _address;
   uint32_t _delay;
   uint32_t _lastRead;
-  uint32_t _lastRequest;   //  for async interface
+  uint32_t _lastRequest;      // for async interface
+  uint32_t _heatInterval;     // for overheating protection
+  uint32_t _lastHeatRequest;  // for overheating protection
   uint16_t _rawHumidity;
   uint16_t _rawTemperature;
   uint8_t  _error;
+  bool     _heatProtection;
 
 private:
   uint32_t getDelay(uint8_t measurementType);
   bool validateMeasCmd(uint8_t cmd);
+  bool isHeatCmd(uint8_t cmd);                    // for overheating protection
+  void setHeatInterval(uint8_t measurementType);  // for overheating protection
   uint8_t crc8(const uint8_t *data, uint8_t len);
   virtual bool writeCmd(uint8_t cmd);
   virtual bool readBytes(uint8_t n, uint8_t *val);
