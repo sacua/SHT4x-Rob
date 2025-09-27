@@ -21,12 +21,16 @@ static constexpr uint8_t SHT4x_GET_SERIAL_NUMBER = 0x89;
 
 SHT4x::SHT4x(uint8_t address, TwoWire *wire)
 {
-  _address        = address;
-  _wire           = wire;
-  _lastRead       = 0;
-  _rawTemperature = 0;
-  _rawHumidity    = 0;
-  _error          = SHT4x_OK;
+  _address          = address;
+  _wire             = wire;
+  _lastRead         = 0;
+  _rawTemperature   = 0;
+  _rawHumidity      = 0;
+  _error            = SHT4x_OK;
+  _delay            = 0;
+  _heatProtection   = true;
+  _heatInterval     = 0;
+  _lastHeatRequest  = 0;
 }
 
 
@@ -62,7 +66,7 @@ bool SHT4x::read(uint8_t measurementType, bool errorCheck)
   {
     return false;
   }
-  delay(getDelay());
+  delay(_delay);
   return readData(errorCheck);
 }
 
@@ -124,24 +128,42 @@ uint16_t SHT4x::getRawTemperature()
 //
 bool SHT4x::requestData(uint8_t measurementType)
 {
+  // Validate command
   if (!validateMeasCmd(measurementType))
   {
     _error = SHT4x_ERR_WRITECMD;
     return false;
   }
+  bool isheatcmd = isHeatCmd(measurementType);
+  // heat protection
+  if (_heatProtection && isheatcmd)
+  {
+    if (!heatingReady())
+    {
+      _error = SHT4x_ERR_HEATER_COOLDOWN;
+      return false;
+    }
+  }
+  // Send command
   if (writeCmd(measurementType) == false)
   {
     return false;
   }
+  // Update required data
   _lastRequest = millis();
-  _lastMeasurementType = measurementType;
+  _delay = getDelay(measurementType);
+  if (isheatcmd)
+  {
+    setHeatInterval(measurementType);
+    _lastHeatRequest = _lastRequest;
+  }
   return true;
 }
 
 
 bool SHT4x::dataReady()
 {
-  return ((millis() - _lastRequest) > getDelay());
+  return ((millis() - _lastRequest) > _delay);
 }
 
 
@@ -221,15 +243,29 @@ bool SHT4x::getSerialNumber(uint32_t &serial, bool errorCheck) {
   return true;
 }
 
+/////////////////////////////////////////////////////////////////
+//
+//   HEAT PROTECTION
+//
+
+bool SHT4x::heatingReady()
+{
+  return ((millis() - _lastHeatRequest) > _heatInterval);
+}
+
+void SHT4x::setHeatProtection(bool activateHeatProtection)
+{
+  _heatProtection = activateHeatProtection;
+}
 
 /////////////////////////////////////////////////////////////////
 //
 //  PROTECTED
 //
-uint32_t SHT4x::getDelay()
+uint16_t SHT4x::getDelay(uint8_t measurementType)
 {
   //  table 5 datasheet
-  switch(_lastMeasurementType)
+  switch(measurementType)
   {
     case SHT4x_MEASUREMENT_SLOW:
       return 9;
@@ -246,9 +282,67 @@ uint32_t SHT4x::getDelay()
     case SHT4x_MEASUREMENT_SHORT_LOW_HEAT:
       return 110;
   }
-  return 0;   //  Happen if dataReady get called before requestData
+  return 0;   //  Never supposed to happen
 }
 
+void SHT4x::setHeatInterval(uint8_t measurementType)
+{
+  // From a 10% duty cyle for 200 mW. Linear interpolation for lower heat power.
+  switch(measurementType)
+  {
+    case SHT4x_MEASUREMENT_LONG_HIGH_HEAT:
+      _heatInterval = 10000;
+      break;
+    case SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT:
+      _heatInterval = 5500;
+      break;
+    case SHT4x_MEASUREMENT_LONG_LOW_HEAT:
+      _heatInterval = 0;
+      break;
+    case SHT4x_MEASUREMENT_SHORT_HIGH_HEAT:
+      _heatInterval = 1000;
+      break;
+    case SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT:
+      _heatInterval = 550;
+      break;
+    case SHT4x_MEASUREMENT_SHORT_LOW_HEAT:
+      _heatInterval = 0;
+      break;
+  }
+}
+
+bool SHT4x::validateMeasCmd(uint8_t cmd)
+{
+  switch(cmd)
+  {
+    case SHT4x_MEASUREMENT_SLOW:
+    case SHT4x_MEASUREMENT_MEDIUM:
+    case SHT4x_MEASUREMENT_FAST:
+    case SHT4x_MEASUREMENT_LONG_HIGH_HEAT:
+    case SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT:
+    case SHT4x_MEASUREMENT_LONG_LOW_HEAT:
+    case SHT4x_MEASUREMENT_SHORT_HIGH_HEAT:
+    case SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT:
+    case SHT4x_MEASUREMENT_SHORT_LOW_HEAT:
+      return true;
+  }
+  return false;
+}
+
+bool SHT4x::isHeatCmd(uint8_t cmd)
+{
+  switch(cmd)
+  {
+    case SHT4x_MEASUREMENT_LONG_HIGH_HEAT:
+    case SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT:
+    case SHT4x_MEASUREMENT_LONG_LOW_HEAT:
+    case SHT4x_MEASUREMENT_SHORT_HIGH_HEAT:
+    case SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT:
+    case SHT4x_MEASUREMENT_SHORT_LOW_HEAT:
+      return true;
+  }
+  return false;
+}
 
 uint8_t SHT4x::crc8(const uint8_t *data, uint8_t len)
 {
