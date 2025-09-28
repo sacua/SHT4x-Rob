@@ -45,6 +45,7 @@
 #define SHT4x_ERR_HEATER_COOLDOWN           0x88
 #define SHT4x_ERR_HEATER_ON                 0x89
 #define SHT4x_ERR_SERIAL_NUMBER_CRC         0x8A
+#define SHT4x_ERR_INVALID_ADDRESS           0x8B
 
 
 class SHT4x
