@@ -22,16 +22,19 @@
 #endif
 
 // SHT4x measurement commands
-#define SHT4x_MEASUREMENT_SLOW              0xFD
-#define SHT4x_MEASUREMENT_MEDIUM            0xF6
-#define SHT4x_MEASUREMENT_FAST              0xE0
-// SHT4x measurement commands with heater on
-#define SHT4x_MEASUREMENT_LONG_HIGH_HEAT    0x39
-#define SHT4x_MEASUREMENT_SHORT_HIGH_HEAT   0x32
-#define SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT  0x2F
-#define SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT 0x24
-#define SHT4x_MEASUREMENT_LONG_LOW_HEAT     0x1E
-#define SHT4x_MEASUREMENT_SHORT_LOW_HEAT    0x15
+typedef enum 
+{
+  SHT4x_MEASUREMENT_SLOW                    = 0xFD,
+  SHT4x_MEASUREMENT_MEDIUM                  = 0xF6,
+  SHT4x_MEASUREMENT_FAST                    = 0xE0,
+  // SHT4x measurement commands with heater on
+  SHT4x_MEASUREMENT_LONG_HIGH_HEAT          = 0x39,
+  SHT4x_MEASUREMENT_SHORT_HIGH_HEAT         = 0x32,
+  SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT        = 0x2F,
+  SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT       = 0x24,
+  SHT4x_MEASUREMENT_LONG_LOW_HEAT           = 0x1E,
+  SHT4x_MEASUREMENT_SHORT_LOW_HEAT          = 0x15
+} measType;
 
 //  error codes
 #define SHT4x_OK                            0x00
@@ -59,7 +62,7 @@ public:
   virtual bool isConnected();
 
   //  blocks for the required time and read after
-  bool read(uint8_t measurementType = SHT4x_MEASUREMENT_SLOW, bool errorCheck = true);
+  bool read(measType measurementType = SHT4x_MEASUREMENT_SLOW, bool errorCheck = true);
 
   //  lastRead is in milliSeconds since start
   uint32_t lastRead();
@@ -77,13 +80,13 @@ public:
 
 
   //  ASYNC INTERFACE
-  bool requestData(uint8_t measurementType = SHT4x_MEASUREMENT_SLOW);
+  bool requestData(measType measurementType = SHT4x_MEASUREMENT_SLOW);
   bool dataReady();
   bool readData(bool errorCheck = true);
 
   //  MISC
   int getError();  //  clears error flag
-  //  fast == true, => skips CRC check
+  //  errorCheck == false, => skips CRC check
   bool getSerialNumber(uint32_t &serial, bool errorCheck = true);
 
   //  Heat protection
@@ -103,9 +106,8 @@ protected:
   uint8_t  _error;
   bool     _heatProtection;
 
-  uint16_t getDelay(uint8_t measurementType);
-  bool     validateMeasCmd(uint8_t cmd);
-  bool     isHeatCmd(uint8_t cmd);                    // for overheating protection
+  void     setDelay(uint8_t measurementType);
+  bool     isHeatCmd(uint8_t measurementType);        // for overheating protection
   void     setHeatInterval(uint8_t measurementType);  // for overheating protection
   uint8_t  crc8(const uint8_t *data, uint8_t len);
   virtual bool writeCmd(uint8_t cmd);

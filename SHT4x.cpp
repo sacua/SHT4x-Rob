@@ -59,7 +59,7 @@ uint8_t SHT4x::getAddress()
 }
 
 
-bool SHT4x::read(uint8_t measurementType, bool errorCheck)
+bool SHT4x::read(measType measurementType, bool errorCheck)
 {
   if (!requestData(measurementType))
   {
@@ -140,14 +140,8 @@ uint16_t SHT4x::getRawTemperature()
 //
 //  ASYNCHRONUOUS INTERFACE
 //
-bool SHT4x::requestData(uint8_t measurementType)
+bool SHT4x::requestData(measType measurementType)
 {
-  //  Validate command
-  if (!validateMeasCmd(measurementType))
-  {
-    _error = SHT4x_ERR_WRITECMD;
-    return false;
-  }
   //  check heat protection
   bool isheatcmd = isHeatCmd(measurementType);
   if (_heatProtection && isheatcmd)
@@ -165,7 +159,7 @@ bool SHT4x::requestData(uint8_t measurementType)
   }
   // Update required data
   _lastRequest = millis();
-  _delay = getDelay(measurementType);
+  setDelay(measurementType);
   if (isheatcmd)
   {
     setHeatInterval(measurementType);
@@ -278,27 +272,31 @@ void SHT4x::setHeatProtection(bool activateHeatProtection)
 //
 //  PROTECTED
 //
-uint16_t SHT4x::getDelay(uint8_t measurementType)
+void SHT4x::setDelay(uint8_t measurementType)
 {
   //  table 5 datasheet
   switch(measurementType)
   {
     case SHT4x_MEASUREMENT_SLOW:
-      return 9;
+      _delay = 9;
+      break;
     case SHT4x_MEASUREMENT_MEDIUM:
-      return 5;
+      _delay = 5;
+      break;
     case SHT4x_MEASUREMENT_FAST:
-      return 2;
+      _delay = 2;
+      break;
     case SHT4x_MEASUREMENT_LONG_HIGH_HEAT:
     case SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT:
     case SHT4x_MEASUREMENT_LONG_LOW_HEAT:
-      return 1100;
+      _delay = 1100;
+      break;
     case SHT4x_MEASUREMENT_SHORT_HIGH_HEAT:
     case SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT:
     case SHT4x_MEASUREMENT_SHORT_LOW_HEAT:
-      return 110;
+      _delay = 110;
+      break;
   }
-  return 0;   //  Never supposed to happen
 }
 
 
@@ -328,29 +326,9 @@ void SHT4x::setHeatInterval(uint8_t measurementType)
   }
 }
 
-
-bool SHT4x::validateMeasCmd(uint8_t cmd)
+bool SHT4x::isHeatCmd(uint8_t measurementType)
 {
-  switch(cmd)
-  {
-    case SHT4x_MEASUREMENT_SLOW:
-    case SHT4x_MEASUREMENT_MEDIUM:
-    case SHT4x_MEASUREMENT_FAST:
-    case SHT4x_MEASUREMENT_LONG_HIGH_HEAT:
-    case SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT:
-    case SHT4x_MEASUREMENT_LONG_LOW_HEAT:
-    case SHT4x_MEASUREMENT_SHORT_HIGH_HEAT:
-    case SHT4x_MEASUREMENT_SHORT_MEDIUM_HEAT:
-    case SHT4x_MEASUREMENT_SHORT_LOW_HEAT:
-      return true;
-  }
-  return false;
-}
-
-
-bool SHT4x::isHeatCmd(uint8_t cmd)
-{
-  switch(cmd)
+  switch(measurementType)
   {
     case SHT4x_MEASUREMENT_LONG_HIGH_HEAT:
     case SHT4x_MEASUREMENT_LONG_MEDIUM_HEAT:

@@ -142,7 +142,7 @@ Returns false if device address is incorrect or device cannot be reset.
 
 ### Read (synchronous)
 
-- **bool read(uint8_t measurementType = SHT4x_MEASUREMENT_SLOW, bool errorCheck = true)** 
+- **bool read(measType measurementType = SHT4x_MEASUREMENT_SLOW, bool errorCheck = true)** 
   - **SHT4x_MEASUREMENT_SLOW** : High precision measurement
   - **SHT4x_MEASUREMENT_MEDIUM** : Medium precision measurement
   - **SHT4x_MEASUREMENT_FAST** : Low precision measurement
@@ -217,6 +217,7 @@ any command as the error flag could be from a previous command.
 |  0x88   |  SHT4x_ERR_HEATER_COOLDOWN    |  Heater need to cool down     |            |
 |  0x89   |  SHT4x_ERR_HEATER_ON          |                               |  not used  |
 |  0x8A   |  SHT4x_ERR_SERIAL_NUMBER_CRC  |  CRC error in Serial number   |            |
+|  0x8B   |  SHT4x_ERR_INVALID_ADDRESS    |  Invalid I2C address          |            |
 
 Some error codes are not used and are kept because inherited from "parent lib" SHT31.
 
@@ -225,7 +226,7 @@ Some error codes are not used and are kept because inherited from "parent lib" S
 
 See async example for usage
 
-- **bool requestData(uint8_t measurementType = SHT4x_MEASUREMENT_SLOW)** requests a new measurement. 
+- **bool requestData(measType measurementType = SHT4x_MEASUREMENT_SLOW)** requests a new measurement. 
 Returns false if this fails. See read() for the possible input.
 - **bool dataReady()** checks if enough time has passed to read the data.
 - **bool readData(bool errorCheck = true)** errorCheck = true does the CRC check. 
@@ -257,7 +258,6 @@ errorCheck == false, => no CRC check, faster.
 
 - check error handling
   - missing or not used codes.
-  - add SHT4x_ERR_INVALID_ADDRESS 
   - set _error where needed.
 
 #### Could
