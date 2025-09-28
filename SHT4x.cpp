@@ -2,7 +2,7 @@
 //    FILE: SHT4x.cpp
 //  AUTHOR: Samuel Cuerrier Auclair
 //  AUTHOR: Rob Tillaart
-// VERSION: 0.0.2
+// VERSION: 0.0.3
 //    DATE: 2025-08-11
 // PURPOSE: Arduino library for the SHT4x temperature and humidity sensor. High precision sensor with I2C interface.
 //          This is a fork of the SHT31 library by Rob Tillaart, modified to work with the SHT4x series.
@@ -15,7 +15,6 @@
 
 //  SUPPORTED COMMANDS
 static constexpr uint8_t SHT4x_SOFT_RESET        = 0x94;
-
 static constexpr uint8_t SHT4x_GET_SERIAL_NUMBER = 0x89;
 
 
@@ -36,7 +35,7 @@ SHT4x::SHT4x(uint8_t address, TwoWire *wire)
 
 bool SHT4x::begin()
 {
-  if ((_address != 0x44) && (_address != 0x45) && (_address != 0x46))
+  if ((_address < 0x44) || (_address > 0x46))
   {
     _error = SHT4x_ERR_WRITECMD;
     return false;   //  invalid address
@@ -64,9 +63,10 @@ bool SHT4x::read(uint8_t measurementType, bool errorCheck)
 {
   if (!requestData(measurementType))
   {
+    //  _error is set in requestData().
     return false;
   }
-  delay(_delay);
+  delay(_delay);  //  calls yield() for RTOS internally
   return readData(errorCheck);
 }
 
@@ -77,14 +77,14 @@ uint32_t SHT4x::lastRead()
 }
 
 
-bool SHT4x::reset()
+bool SHT4x::reset(bool fast)
 {
   bool b = writeCmd(SHT4x_SOFT_RESET);
   if (b == false)
   {
     return false;
   }
-  delay(1);   //  table 5 datasheet
+  if (fast == false) delay(1);   //  table 5 datasheet
   return true;
 }
 
@@ -114,6 +114,7 @@ float SHT4x::getTemperature()
   return _rawTemperature * SCALE - OFFSET;
 }
 
+
 float SHT4x::getFahrenheit()
 {
   constexpr float SCALE  = 315.0f / 65535.0f;
@@ -121,6 +122,7 @@ float SHT4x::getFahrenheit()
 
   return _rawTemperature * SCALE - OFFSET;
 }
+
 
 uint16_t SHT4x::getRawHumidity()
 {
@@ -140,14 +142,14 @@ uint16_t SHT4x::getRawTemperature()
 //
 bool SHT4x::requestData(uint8_t measurementType)
 {
-  // Validate command
+  //  Validate command
   if (!validateMeasCmd(measurementType))
   {
     _error = SHT4x_ERR_WRITECMD;
     return false;
   }
+  //  check heat protection
   bool isheatcmd = isHeatCmd(measurementType);
-  // heat protection
   if (_heatProtection && isheatcmd)
   {
     if (!heatingReady())
@@ -235,15 +237,16 @@ bool SHT4x::getSerialNumber(uint32_t &serial, bool errorCheck) {
     return false;
   }
 
-  if (errorCheck) {
-      if (buffer[2] != crc8(buffer, 2)) {
-      _error = SHT4x_ERR_SERIAL_NUMBER_CRC;
-      return false;
-      }
-      if (buffer[5] != crc8(buffer + 3, 2)) {
-      _error = SHT4x_ERR_SERIAL_NUMBER_CRC;
-      return false;
-      }
+  if (errorCheck)
+  {
+    if (buffer[2] != crc8(buffer, 2)) {
+    _error = SHT4x_ERR_SERIAL_NUMBER_CRC;
+    return false;
+    }
+    if (buffer[5] != crc8(buffer + 3, 2)) {
+    _error = SHT4x_ERR_SERIAL_NUMBER_CRC;
+    return false;
+    }
   }
   serial = buffer[0];
   serial <<= 8;
@@ -255,11 +258,11 @@ bool SHT4x::getSerialNumber(uint32_t &serial, bool errorCheck) {
   return true;
 }
 
+
 /////////////////////////////////////////////////////////////////
 //
 //   HEAT PROTECTION
 //
-
 bool SHT4x::heatingReady()
 {
   return ((millis() - _lastHeatRequest) > _heatInterval);
@@ -269,6 +272,7 @@ void SHT4x::setHeatProtection(bool activateHeatProtection)
 {
   _heatProtection = activateHeatProtection;
 }
+
 
 /////////////////////////////////////////////////////////////////
 //
@@ -297,9 +301,10 @@ uint16_t SHT4x::getDelay(uint8_t measurementType)
   return 0;   //  Never supposed to happen
 }
 
+
 void SHT4x::setHeatInterval(uint8_t measurementType)
 {
-  // From a 10% duty cyle for 200 mW. Linear interpolation for lower heat power.
+  //  From a 10% duty cycle for 200 mW. Linear interpolation for lower heat power.
   switch(measurementType)
   {
     case SHT4x_MEASUREMENT_LONG_HIGH_HEAT:
@@ -323,6 +328,7 @@ void SHT4x::setHeatInterval(uint8_t measurementType)
   }
 }
 
+
 bool SHT4x::validateMeasCmd(uint8_t cmd)
 {
   switch(cmd)
@@ -341,6 +347,7 @@ bool SHT4x::validateMeasCmd(uint8_t cmd)
   return false;
 }
 
+
 bool SHT4x::isHeatCmd(uint8_t cmd)
 {
   switch(cmd)
@@ -355,6 +362,7 @@ bool SHT4x::isHeatCmd(uint8_t cmd)
   }
   return false;
 }
+
 
 uint8_t SHT4x::crc8(const uint8_t *data, uint8_t len)
 {
