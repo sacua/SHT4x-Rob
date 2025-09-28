@@ -38,7 +38,7 @@ bool SHT4x::begin()
 {
   if ((_address != 0x44) && (_address != 0x45) && (_address != 0x46))
   {
-    _error = SHT4x_ERR_WRITECMD;
+    _error = SHT4x_ERR_INVALID_ADDRESS;
     return false;   //  invalid address
   }
   return reset();

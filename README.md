@@ -209,7 +209,7 @@ any command as the error flag could be from a previous command.
 |  0x88   |  SHT4x_ERR_HEATER_COOLDOWN    |  Heater need to cool down      |                 |
 |  0x89   |  SHT4x_ERR_HEATER_ON          |  Could not switch on heater    |     not use     |
 |  0x8A   |  SHT4x_ERR_SERIAL_NUMBER_CRC  |  Could not switch on heater    |                 |
-
+|  0x8B   |  SHT4x_ERR_INVALID_ADDRESS    |  Invalid I2C address           |                 |
 
 ### Async interface
 
