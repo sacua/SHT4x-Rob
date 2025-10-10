@@ -32,17 +32,17 @@ until a defined interval has passed. The interval is mentioned in table below.
 This interval is based on a 10% duty cycle for 200 mW. 
 Thus, the average power is limited to 20 mW.
 
-Datasheet used: Version 7.1 – March 2025.
+Datasheet used: Version 7.1 â€“ March 2025.
 
 
 **Accuracy table**
 
 |  Sensor  |  Temperature  |  Humidity  |  Verified  |  Notes  |
 |:--------:|:-------------:|:----------:|:----------:|:-------:|
-|   SHT40  |     ~0.2 °C   |     1.8%   |     Y      |
-|   SHT41  |     ~0.2 °C   |     1.8%   |     N      |
-|   SHT43  |     ~0.2 °C   |     1.8%   |     N      |  ISO/IEC 17025 3-point calibration 
-|   SHT45  |     ~0.1 °C   |     1.0%   |     N      |
+|   SHT40  |     ~0.2 Â°C   |     1.8%   |     Y      |
+|   SHT41  |     ~0.2 Â°C   |     1.8%   |     N      |
+|   SHT43  |     ~0.2 Â°C   |     1.8%   |     N      |  ISO/IEC 17025 3-point calibration 
+|   SHT45  |     ~0.1 Â°C   |     1.0%   |     N      |
 
 
 The datasheet states 3 different accuracies for the SHT43.
@@ -142,7 +142,7 @@ Returns false if device address is incorrect or device cannot be reset.
 
 ### Read (synchronous)
 
-- **bool read(uint8_t measurementType = SHT4x_MEASUREMENT_SLOW, bool errorCheck = true)** 
+- **bool read(measType measurementType = SHT4x_MEASUREMENT_SLOW, bool errorCheck = true)** 
   - **SHT4x_MEASUREMENT_SLOW** : High precision measurement
   - **SHT4x_MEASUREMENT_MEDIUM** : Medium precision measurement
   - **SHT4x_MEASUREMENT_FAST** : Low precision measurement
@@ -182,8 +182,8 @@ Note that reset() blocks for 1 ms so sensor can reinitialize unless parameter fa
 The following functions will return the same value until a new **read()** call (or async equivalent) is made.
 
 - **float getHumidity()** computes the relative humidity in % based on the latest raw reading, and returns it.
-- **float getTemperature()** computes the temperature in °C based on the latest raw reading, and returns it.
-- **float getFahrenheit()** computes the temperature in °F based on the latest raw reading, and returns it.
+- **float getTemperature()** computes the temperature in Â°C based on the latest raw reading, and returns it.
+- **float getFahrenheit()** computes the temperature in Â°F based on the latest raw reading, and returns it.
 
 
 The **getRawHumidity()** and **getRawTemperature()** can be used to minimize storage or communication 
@@ -217,6 +217,7 @@ any command as the error flag could be from a previous command.
 |  0x88   |  SHT4x_ERR_HEATER_COOLDOWN    |  Heater need to cool down     |            |
 |  0x89   |  SHT4x_ERR_HEATER_ON          |                               |  not used  |
 |  0x8A   |  SHT4x_ERR_SERIAL_NUMBER_CRC  |  CRC error in Serial number   |            |
+|  0x8B   |  SHT4x_ERR_INVALID_ADDRESS    |  Invalid I2C address          |            |
 
 Some error codes are not used and are kept because inherited from "parent lib" SHT31.
 
@@ -225,7 +226,7 @@ Some error codes are not used and are kept because inherited from "parent lib" S
 
 See async example for usage
 
-- **bool requestData(uint8_t measurementType = SHT4x_MEASUREMENT_SLOW)** requests a new measurement. 
+- **bool requestData(measType measurementType = SHT4x_MEASUREMENT_SLOW)** requests a new measurement. 
 Returns false if this fails. See read() for the possible input.
 - **bool dataReady()** checks if enough time has passed to read the data.
 - **bool readData(bool errorCheck = true)** errorCheck = true does the CRC check. 
@@ -257,7 +258,6 @@ errorCheck == false, => no CRC check, faster.
 
 - check error handling
   - missing or not used codes.
-  - add SHT4x_ERR_INVALID_ADDRESS 
   - set _error where needed.
 
 #### Could
